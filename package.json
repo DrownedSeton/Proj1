@@ -1,0 +1,13 @@
+{
+  "name": "ggs",
+  "version": "1.0.0",
+  "description": "����� �뢮�� ������ �� ��࠭ (ECHO) ����祭.",
+  "main": "index.js",
+  "scripts": {
+    "lab1": "C:/Users/user/Downloads/node-v20.11.1-win-x64/node ./test",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
+
