@@ -41,19 +41,19 @@
 | Endpoint | POST /api/tasks |
 | Description | Метод для создания новой задачи |
 | Request | interface Request {
-    "title": "Название задачи",
-    "description": "Описание задачи",
-    "deadline": "Срок выполнения задачи"
+  "title": "Название задачи",
+  "description": "Описание задачи",
+  "deadline": "Срок выполнения задачи"
 } |
 | Response | interface Response {
-    "success": true,
-    "task": {
-        "id": "уникальный идентификатор задачи",
-        "title": "Название задачи",
-        "description": "Описание задачи",
-        "deadline": "Срок выполнения задачи",
-        "created_at": "Дата создания задачи"
-    }
+  "success": true,
+  "task": {
+  "id": "уникальный идентификатор задачи",
+  "title": "Название задачи",
+  "description": "Описание задачи",
+  "deadline": "Срок выполнения задачи",
+  "created_at": "Дата создания задачи"
+   }
 }; |
 | Errors | • ERR_USER_NOT_AUTH - пользователь не авторизован в приложении
 • ERR_VALIDATION_FAILED - переданы невалидные входные параметры
@@ -64,27 +64,27 @@
 | Endpoint | GET /api/tasks |
 | Description | Метод для получения всех задач |
 | Request | interface Request {
- //ничего
+  //ничего
 } |
 | Response | interface Response {
-    "success": true,
-    "tasks": [
-        {
-            "id": "уникальный идентификатор задачи",
-            "title": "Название задачи",
-            "description": "Описание задачи",
-            "deadline": "Срок выполнения задачи",
-            "created_at": "Дата создания задачи"
-        },
-        {
-            "id": "уникальный идентификатор задачи",
-            "title": "Название задачи",
-            "description": "Описание задачи",
-            "deadline": "Срок выполнения задачи",
-            "created_at": "Дата создания задачи"
-        },
-        ...
-    ]
+  "success": true,
+  "tasks": [
+  {
+  "id": "уникальный идентификатор задачи",
+  "title": "Название задачи",
+  "description": "Описание задачи",
+  "deadline": "Срок выполнения задачи",
+  "created_at": "Дата создания задачи"
+  },
+  {
+  "id": "уникальный идентификатор задачи",
+  "title": "Название задачи",
+  "description": "Описание задачи",
+  "deadline": "Срок выполнения задачи",
+  "created_at": "Дата создания задачи"
+  },
+  ...
+  ]
 }; |
 | Errors | • ERR_USER_NOT_AUTH - пользователь не авторизован в приложении
 • ERR_TASKS_NOT_FOUND - не найдено задач |
