@@ -41,10 +41,10 @@
 | Endpoint | POST /api/tasks |
 | Description | Метод для создания новой задачи |
 | Request | interface Request {
-  "title": "Название задачи",
-  "description": "Описание задачи",
-  "deadline": "Срок выполнения задачи"
-} |
+  	    "title": "Название задачи",
+            "description": "Описание задачи",
+            "deadline": "Срок выполнения задачи"
+            } |
 | Response | interface Response {
   "success": true,
   "task": {
