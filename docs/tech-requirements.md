@@ -38,7 +38,7 @@
 
 | Создание новой задачи |  |
 | --- | --- |
-| Endpoint | POST /api/tasks |
+| Endpoint | POST /api/CreateTask |
 | Description | Метод для создания новой задачи |
 | Request | interface Request {"title": "Название задачи","description": "Описание задачи","deadline": "Срок выполнения задачи"} |
 | Response | interface Response {"success": true,"task": {"id": "уникальный идентификатор задачи","title": "Название задачи","description": "Описание задачи","deadline": "Срок выполнения задачи","created_at": "Дата создания задачи"}}; |
@@ -46,7 +46,7 @@
 
 | Получение всех задач |  |
 | --- | --- |
-| Endpoint | GET /api/tasks |
+| Endpoint | GET /api/GetTasks |
 | Description | Метод для получения всех задач |
 | Request | interface Request {//ничего} |
 | Response | interface Response {"success": true,"tasks": [{"id": "уникальный идентификатор задачи","title": "Название задачи","description": "Описание задачи","deadline": "Срок выполнения задачи","created_at": "Дата создания задачи"},{"id": "уникальный идентификатор задачи","title": "Название задачи","description": "Описание задачи","deadline": "Срок выполнения задачи","created_at": "Дата создания задачи"},...]}; |
@@ -54,7 +54,7 @@
 
 | Обновление задач |  |
 | --- | --- |
-| Endpoint | PUT /api/tasks/:taskId |
+| Endpoint | PUT /api/UpdateTasks/:taskId |
 | Description | Метод для обновления задач |
 | Request | interface Request {"title": "Новое название задачи","description": "Новое описание задачи","deadline": "Новый срок выполнения задачи} |
 | Response | interface Response {"success": true,"message": "Задача успешно обновлена"}; |
@@ -62,12 +62,49 @@
 
 | Удаление задач |  |
 | --- | --- |
-| Endpoint | DELETE /api/tasks/:taskId |
+| Endpoint | DELETE /api/DeleteTasks/:taskId |
 | Description | Метод для удаления задач |
 | Request | interface Request {//ничего} |
 | Response | interface Response {"success": true,"message": "Задача успешно удалена"}; |
 | Errors | • ERR_USER_NOT_AUTH - пользователь не авторизован в приложении |
 
+- POST /api/CreateFolders: Обработка запроса на создание новой папки. Создание новой записи папки в базе данных и возврат созданной папки.
+- GET /api/GetFolders: Обработка запроса на получение всех папок. Запрос всех папок из базы данных и возврат списка папок.
+- GET /api/TaskFolders/:folderId/tasks: Обработка запроса на получение всех задач в определенной папке. Поиск папки по идентификатору, запрос всех связанных задач и возврат списка задач.
+- PUT /api/UpdateFolders/:folderId: Обработка запроса на обновление информации о папке. Нахождение папки по идентификатору, обновление данных папки и возврат сообщения об успешном обновлении.
+- DELETE /api/DeketeFolders/:folderId: Обработка запроса на удаление папки. Нахождение папки по идентификатору, удаление папки из базы данных и возврат сообщения об успешном удалении.
+
+| Регистрация |  |
+| --- | --- |
+| Endpoint | POST /api/users |
+| Description | Метод для регистрации пользователей  |
+| Request | interface Request {"username": "username","email": "email@example.com","password": "password"} |
+| Response | interface Response {"id": 1,"username": "username","email": "email@example.com","email_verified": false}|
+| Errors | • ERR_USER_NOT_AUTH - пользователь не авторизован в приложении • ERR_MAIL_NOT_EXIST - не верно указана почта |
+
+| Подтверждение почты |  |
+| --- | --- |
+| Endpoint | GET /api/users/verify_email |
+| Description | Метод для подтверждения почты  |
+| Request | interface Request {"token"} |
+| Response | interface Response {"id": 1,"username": "username","email": "email@example.com","email_verified": true}|
+| Errors | • ERR_USER_NOT_AUTH - пользователь не авторизован в приложении • ERR_MAIL_NOT_EXIST - не верно указана почта |
+
+| Авторизация |  |
+| --- | --- |
+| Endpoint | POST /api/auth |
+| Description | Метод для подтверждения почты  |
+| Request | interface Request {"username": "username","password": "password"} |
+| Response | interface Response {"token"}|
+| Errors | • ERR_USER_NOT_AUTH - пользователь не авторизован в приложении • ERR_NAME_NOT_EXIST - не верно указано имя • ERR_PASS_NOT_EXIST - не верно указан пароль|
+
+| Выход |  |
+| --- | --- |
+| Endpoint | POST /api/auth/logout |
+| Description | Метод для выхода из аккаунта  |
+| Request | interface Request {Authorization: Bearer <token>} |
+| Response | interface Response {"message": "Успешный выход из аккаунта"}|
+| Errors | • ERR_USER_NOT_AUTH - пользователь не авторизован в приложении|
 
 > **Не стоит путать клиентов - с пользователями**.
 
@@ -89,13 +126,7 @@
 - Использование MongoDB для хранения данных о задачах.
 - Использование Mongoose для создания модели задачи и удобного взаимодействия с базой данных.
 
-**3.API Endpoints**:
-- POST /api/tasks: Обработка запроса на создание новой задачи. Прием данных, создание новой записи в базе данных и возврат созданной задачи.
-- GET /api/tasks: Обработка запроса на получение всех задач. Запрос всех задач из базы данных и возврат списка задач.
-- PUT /api/tasks/:taskId: Обработка запроса на обновление задачи по идентификатору. Нахождение задачи по идентификатору, обновление данных и возврат сообщения об успешном обновлении.
-- DELETE /api/tasks/:taskId: Обработка запроса на удаление задачи по идентификатору. Нахождение задачи по идентификатору, удаление задачи из базы данных и возврат сообщения об успешном удалении.
-
-**4.Аутентификация:**
+**3.Аутентификация:**
 - Реализация базовой аутентификации для обеспечения безопасного доступа к функционалу сервиса.
 
 **Frontend:**
