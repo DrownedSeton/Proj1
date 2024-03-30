@@ -1,0 +1,20 @@
+{
+  "name": "proj1",
+  "version": "1.0.0",
+  "description": "����� �뢮�� ������ �� ��࠭ (ECHO) ����祭.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "mysql": "^2.18.1"
+  }
+}
