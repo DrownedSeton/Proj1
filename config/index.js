@@ -5,9 +5,9 @@ const config = {
     db: {
         mysql : {
             host: 'localhost',
-            user: 'user', // замените на своего пользователя
-            database: 'appdb', // можете заменить 'appdb' на свое название базы данных
-            password: 'yourPasswordHere', // замените это на пароль от своего пользователя
+            user: 'user38', // замените на своего пользователя
+            database: 'db38', // можете заменить 'appdb' на свое название базы данных
+            password: 'AVNS_vHOnKAWv5W82JkrFdF3', // замените это на пароль от своего пользователя
             port: 25060, // порт базы данных
             ssl: {
                 ca: fs.readFileSync('C:/Git/Proj1/config/ca-certificate-test.crt'), // Путь к файлу ca.crt
