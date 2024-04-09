@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "start": "node app.js",
+    "start": "C:/Users/user/Desktop/node/node-v20.11.1-win-x64/node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
