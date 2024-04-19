@@ -15,7 +15,7 @@ const config = {
         },
     },
     port: 3000 // порт на котором будет запущен сервер приложения
-    // jwtSecret: 'javainuse-secret-key'
+    //jwtSecret: 'javainuse-secret-key'
 
 };
 

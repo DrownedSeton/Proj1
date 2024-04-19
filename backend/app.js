@@ -3,6 +3,8 @@ const express = require('express');
 const mysql = require('mysql');
 const config = require('./config');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const port = config.port;
@@ -174,16 +176,18 @@ app.get('/profile', (req, res) => {
 });
 
 // Cоздание таблицы
-app.post('/api/CreateTaskTable', async (req, res) => {
-    const sqlQuery = `CREATE TABLE db38.tasks (
-    id INT NOT NULL AUTO_INCREMENT,
-    title VARCHAR(255) NOT NULL,
-    description TEXT,
-    status VARCHAR(255) NOT NULL DEFAULT 'new',
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (id)
-  )`;
+/*app.post('/api/CreateTaskTable', async (req, res) => {
+    const sqlQuery = `
+        CREATE TABLE db38.tasks (
+        id INT NOT NULL AUTO_INCREMENT,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        status VARCHAR(255) NOT NULL DEFAULT 'new',
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (id)
+        )
+    `;
 
     dbConnection.query(sqlQuery, (err, result) => {
         if (err) {
@@ -195,6 +199,45 @@ app.post('/api/CreateTaskTable', async (req, res) => {
         res.json({
             message: 'Таблица tasks создана',
         });
+    });
+});*/
+app.get('/api/createTasksTable', (req, res) => {
+    const createTasksTableQuery = `
+        CREATE TABLE IF NOT EXISTS db38 (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            description TEXT,
+            status ENUM('new', 'in_progress', 'completed') DEFAULT 'new'
+        )
+    `;
+    dbConnection.query(createTasksTableQuery, (err, result) => {
+        if (err) {
+            console.error('Error creating tasks table: ' + err.stack);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+        console.log('Tasks table created successfully');
+        res.status(200).send('Tasks table created successfully');
+    });
+});
+
+// Create users table
+app.get('/api/createUsersTable', (req, res) => {
+    const createUsersTableQuery = `
+        CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(255) NOT NULL UNIQUE,
+            password VARCHAR(255) NOT NULL
+        )
+    `;
+    dbConnection.query(createUsersTableQuery, (err, result) => {
+        if (err) {
+            console.error('Error creating users table: ' + err.stack);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+        console.log('Users table created successfully');
+        res.status(200).send('Users table created successfully');
     });
 });
 
