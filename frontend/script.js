@@ -1,105 +1,195 @@
-// Функция для загрузки задач с сервера
-function loadTasks() {
-    // Предполагаем, что сервер запущен на localhost:3000
-    // Также предполагаем, что у вас метод получения всех задач называется getTasks и находится на данном пути
-    fetch('http://localhost:3000/api/getTasks')
-        .then(response => response.json())
-        .then(tasks => {
-            const taskList = document.getElementById('taskList');
-            taskList.innerHTML = '';
-            tasks.forEach(task => {
-                const li = document.createElement('li');
-                li.textContent = task.name;
-                taskList.appendChild(li);
-            });
-        })
-        .catch(error => console.error('Error fetching tasks:', error));
+// selectors
+const todoInputs = document.querySelector(".todo-inputs");
+const todoButton = document.querySelector(".todo-button");
+const todoList = document.querySelector(".todo-list");
+const filterOption = document.querySelector(".filter-todos");
+
+// function to add todos
+function addTodos(e) {
+  e.preventDefault();
+
+  // todoDiv
+  const todoDiv = document.createElement("div");
+  todoDiv.classList.add("todo");
+
+  // new todo
+  const newTodo = document.createElement("li");
+  newTodo.classList.add("todo-item");
+  newTodo.innerText = todoInputs.value;
+  todoDiv.appendChild(newTodo);
+
+  // checked button
+  const completedButton = document.createElement("button");
+  completedButton.innerHTML = '<i class="fas fa-check"></i>';
+  completedButton.classList.add("complete-btn");
+  todoDiv.appendChild(completedButton);
+
+  // trash button
+  const trashButton = document.createElement("button");
+  trashButton.innerHTML = '<i class="fas fa-trash"></i>';
+  trashButton.classList.add("trash-btn");
+  todoDiv.appendChild(trashButton);
+
+  // append list
+  todoList.appendChild(todoDiv);
+  todoInputs.value = "";
 }
 
-// Функция для добавления задачи на сервер
-function addTask(taskName) {
-    fetch('http://localhost:3000/api/CreateTask', {
-        method: 'POST', headers: {
-            'Content-Type': 'application/json'
-        }, body: JSON.stringify({name: taskName})
+// function to delete or check todos
+function deleteCheck(e) {
+  const item = e.target;
+
+  // delete todo
+  if (item.classList.contains("trash-btn")) {
+    const todo = item.parentElement;
+
+    // todo animation
+    todo.classList.add("fall");
+    todo.addEventListener("transitionend", function () {
+      todo.remove();
+    });
+  }
+
+  // complete todo
+  if (item.classList.contains("complete-btn")) {
+    const todo = item.parentElement;
+    todo.classList.toggle("completed");
+  }
+}
+
+// function to filter todos
+function filterTodo(e) {
+  const todos = todoList.childNodes;
+  todos.forEach(function (todo) {
+    switch (e.target.value) {
+      case "all":
+        todo.style.display = "flex";
+        break;
+      case "completed":
+        if (todo.classList.contains("completed")) {
+          todo.style.display = "flex";
+        } else {
+          todo.style.display = "none";
+        }
+        break;
+      case "uncompleted":
+        if (!todo.classList.contains("completed")) {
+          todo.style.display = "flex";
+        } else {
+          todo.style.display = "none";
+        }
+        break;
+    }
+  });
+}
+
+// function to retrieve todos from server
+function getTodos() {
+  // fetch todos from server
+  fetch('http://localhost:3000/api/getTasks')
+    .then(response => response.json())
+    .then(data => {
+      data.forEach(todo => {
+        // todoDiv
+        const todoDiv = document.createElement("div");
+        todoDiv.classList.add("todo");
+
+        // create li
+        const newTodo = document.createElement("li");
+        newTodo.classList.add("todo-item");
+        newTodo.innerText = todo;
+        todoDiv.appendChild(newTodo);
+
+        // checked button
+        const completedButton = document.createElement("button");
+        completedButton.innerHTML = '<i class="fas fa-check"></i>';
+        completedButton.classList.add("complete-btn");
+        todoDiv.appendChild(completedButton);
+
+        // trash button
+        const trashButton = document.createElement("button");
+        trashButton.innerHTML = '<i class="fas fa-trash"></i>';
+        trashButton.classList.add("trash-btn");
+        todoDiv.appendChild(trashButton);
+
+        // append list
+        todoList.appendChild(todoDiv);
+      });
     })
-        .then(response => response.text())
-        .then(message => {
-            console.log(message);
-            loadTasks(); // После добавления задачи перезагружаем список задач
-        })
-        .catch(error => console.error('Error adding task:', error));
+    .catch(error => console.error('Error fetching todos:', error));
 }
 
-// Обработчик события отправки формы
-document.getElementById('taskForm').addEventListener('submit', function (event) {
-    event.preventDefault(); // Предотвращаем перезагрузку страницы
+// function to load tasks
+function loadTasks() {
+  fetch('http://localhost:3000/api/getTasks')
+    .then(response => response.json())
+    .then(tasks => {
+      const taskList = document.getElementById('taskList');
+      taskList.innerHTML = '';
+      tasks.forEach(task => {
+        const li = document.createElement('li');
+        li.textContent = task.name;
+        taskList.appendChild(li);
+      });
+    })
+    .catch(error => console.error('Error fetching tasks:', error));
+}
+
+// function to add a task
+function addTask(taskName) {
+  fetch('http://localhost:3000/api/CreateTask', {
+    method: 'POST', 
+    headers: {
+      'Content-Type': 'application/json'
+    }, 
+    body: JSON.stringify({name: taskName})
+  })
+  .then(response => response.text())
+  .then(message => {
+    console.log(message);
+    loadTasks(); 
+  })
+  .catch(error => console.error('Error adding task:', error));
+}
+
+// event listeners
+document.addEventListener("DOMContentLoaded", () => {
+  // Load tasks on page load
+  loadTasks();
+
+  // Form submission for adding tasks
+  document.getElementById('taskForm').addEventListener('submit', function (event) {
+    event.preventDefault(); 
     const taskInput = document.getElementById('taskInput');
     const taskName = taskInput.value.trim();
     if (taskName !== '') {
-        addTask(taskName); // Вызываем функцию добавления задачи
-        taskInput.value = ''; // Очищаем поле ввода
+      addTask(taskName); 
+      taskInput.value = ''; 
     }
-});
-document.addEventListener('DOMContentLoaded', () => {
-    // Обработка формы входа
-    document.getElementById('loginForm').addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        try {
-            const response = await fetch('http://localhost:3000/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, password })
-            });
-            const data = await response.json();
-            localStorage.setItem('token', data.token); // Сохранение токена в localStorage
-            alert('Вы успешно вошли');
-        } catch (error) {
-            console.error('Ошибка при входе:', error);
-            alert('Ошибка при входе');
-        }
-    });
+  });
 
-    // Обработка формы регистрации
-    document.getElementById('registerForm').addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const newUsername = document.getElementById('newUsername').value;
-        const newPassword = document.getElementById('newPassword').value;
-        try {
-            const response = await fetch('http://localhost:3000/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username: newUsername, password: newPassword })
-            });
-            alert('Пользователь успешно зарегистрирован');
-        } catch (error) {
-            console.error('Ошибка при регистрации:', error);
-            alert('Ошибка при регистрации');
-        }
-    });
+  // Event listener for filtering todos
+  filterOption.addEventListener("click", filterTodo);
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        // Пользователь аутентифицирован, делаем что-то...
-        // Например, получаем данные пользователя или показываем защищенные части приложения
-        // Вы можете отправить запрос на /profile маршрут для получения данных о пользователе
-        // Или просто показать определенные элементы интерфейса, доступные только аутентифицированным пользователям
-    } else {
-        // Пользователь не аутентифицирован, показываем форму входа и/или регистрации
-        // Например:
-        document.getElementById('loginForm').style.display = 'block';
-        document.getElementById('registerForm').style.display = 'block';
+
+const fetchTasks = async () => {
+    try {
+      const response = await fetch('/getTasks', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}` // Передача токена авторизации
+        }
+      });
+      const data = await response.json();
+      console.log('Задачи текущего пользователя:', data);
+      // Далее обрабатываем полученные задачи на клиенте
+    } catch (error) {
+      console.error('Ошибка при получении задач:', error);
     }
-});
+  };
 
-// После загрузки страницы сразу загружаем задачи
-loadTasks();
-
+// Event listeners for todo functionality
+document.addEventListener("DOMContentLoaded", getTodos);
+todoButton.addEventListener("click", addTodos);
+todoList.addEventListener("click", deleteCheck);

@@ -14,9 +14,8 @@ const config = {
             }
         },
     },
-    port: 3000 // порт на котором будет запущен сервер приложения
-    //jwtSecret: 'javainuse-secret-key'
-
+    port: 3000, // порт на котором будет запущен сервер приложения
+    jwtSecret: 'myverymegaextrasecretkey'
 };
 
 module.exports =  config;
