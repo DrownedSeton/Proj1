@@ -5,8 +5,8 @@ const config = require('./config');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
 const app = express();
+const nodemailer = require('nodemailer');
 const port = config.port;
 
 app.use(express.json());
@@ -26,7 +26,7 @@ dbConnection.connect((err) => {
 
 // Получение всех задач
 app.get('/api/getTasks', (req, res) => {
-    dbConnection.query('SELECT * FROM tasks', (err, results) => {
+    dbConnection.query('SELECT * FROM task22', (err, results) => {
         if (err) {
             console.error('Ошибка выполнения запроса: ' + err.stack);
             res.status(500).send('Ошибка сервера');
@@ -39,9 +39,13 @@ app.get('/api/getTasks', (req, res) => {
 
 // Создание новой задачи
 app.post('/api/CreateTask', async (req, res) => {
-    const { title, description, status = 'new' } = req.body;
+    const { title, description,username, status = 'new' } = req.body;
     
-    const sqlQuery = `INSERT INTO tasks (title, description, status) VALUES ('${title}', '${description}', '${status}')`;
+    if (!title) {
+      res.status(400).send('Не указано имя задачи');
+      return;
+  }
+    const sqlQuery = `INSERT INTO task22 (title, description,username, status) VALUES ('${title}', '${description}','${username}', '${status}')`;
 
     dbConnection.query(sqlQuery, (err, result) => {
         if (err) {
@@ -51,9 +55,10 @@ app.post('/api/CreateTask', async (req, res) => {
         }
         console.log('Задача создана:', result);
         res.json({
-            id: result.insertId,
+            id: result.id,
             title,
             description,
+            username,
             status,
         });
     });
@@ -64,7 +69,7 @@ app.put('/api/UpdateTasks/:taskId', async (req, res) => {
     const taskId = req.params.taskId;
     const { title, description, status } = req.body;
     
-    const sqlQuery = `UPDATE tasks SET title = '${title}', description = '${description}', status = '${status}' WHERE id = ${taskId}`;
+    const sqlQuery = `UPDATE task22 SET title = '${title}', description = '${description}', status = '${status}' WHERE id = ${taskId}`;
 
     dbConnection.query(sqlQuery, (err, result) => {
         if (err) {
@@ -86,7 +91,7 @@ app.put('/api/UpdateTasks/:taskId', async (req, res) => {
 app.delete('/api/DeleteTasks/:taskId', async (req, res) => {
     const taskId = req.params.taskId;
     
-    const sqlQuery = `DELETE FROM tasks WHERE id = ${taskId}`;
+    const sqlQuery = `DELETE FROM task22 WHERE id = ${taskId}`;
 
     dbConnection.query(sqlQuery, (err, result) => {
         if (err) {
@@ -101,17 +106,33 @@ app.delete('/api/DeleteTasks/:taskId', async (req, res) => {
     });
 });
 
+//регистрация
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+      user: 'anna.balanovskaya1983@gmail.com',
+      pass: 'zmmp auze tfvo zxdh'
+  }
+});
+
 app.post('/register', async (req, res) => {
     try {
       const { username, password, email } = req.body;
+
+      if (!password) {
+        console.error('Пароль не предоставлен');
+        res.status(400).send('Необходимо предоставить пароль');
+        return;
+      }
   
       // Хеширование пароля
       const hashedPassword = await bcrypt.hash(password, 10);
   
       // Сохранение пользователя в базе данных
       dbConnection.query(
-        `INSERT INTO users (username, password, email) VALUES (?, ?, ?)`,
-        [username, hashedPassword, email],
+        `INSERT INTO users (username, email, password) VALUES (?, ?, ?)`,
+        [username, email, hashedPassword],
         async (err, result) => {
           if (err) {
             console.error('Ошибка выполнения запроса: ' + err.stack);
@@ -121,6 +142,7 @@ app.post('/register', async (req, res) => {
   
                   // ответ в result зависит от базы данных.
                   // возможно вместо insertId будет id.
+          console.log('Результаты запроса:', result);        
           const userId = result.insertId;
   
               // Генерация токена подтверждения почты, который живет 1 день
@@ -216,6 +238,8 @@ app.post('/register', async (req, res) => {
       res.status(500).send('Ошибка сервера');
     }
   });
+
+
 // Вход пользователя
 app.post('/login', async (req, res) => {
     try {
@@ -251,31 +275,47 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// Проверка аутентификации с использованием JWT
-app.get('/profile', (req, res) => {
-    // Получение токена из заголовка Authorization
-    const token = req.headers.authorization.split(' ')[1];
-    try {
-        // Проверка токена
-        const decoded = jwt.verify(token, config.jwtSecret);
-        res.status(200).json({ username: decoded.username });
-    } catch (error) {
-        console.error('Ошибка при проверке токена:', error);
-        res.status(401).send('Неверный токен');
-    }
+app.get('/profile', async (req, res) => {
+  // Получение токена из заголовка Authorization
+  const token = req.headers.authorization.split(' ')[1];
+  try {
+      // Проверка токена и декодирование
+      const decoded = jwt.verify(token, config.jwtSecret);
+      const username = decoded.username;
+      const sqlQuery = `SELECT user_id FROM users WHERE username = '${username}'`;
+
+      // Выполнение запроса к базе данных
+      const results = await new Promise((resolve, reject) => {
+          dbConnection.query(sqlQuery, (error, results) => {
+              if (error) {
+                  console.error('Ошибка при выполнении запроса:', error);
+                  reject(error);
+                  return;
+              }
+              resolve(results);
+          });
+      });
+
+      const userId = results[0].user_id;
+      res.status(200).json({ userId: userId });
+  } catch (error) {
+      console.error('Ошибка при проверке токена:', error);
+      res.status(401).send('Неверный токен');
+  }
 });
 
-// Cоздание таблицы
-app.post('/api/CreateTaskTable', async (req, res) => {
+// Cоздание таблицы задач
+app.post('/api/CreateTable', async (req, res) => {
     const sqlQuery = `
-        CREATE TABLE tasks(
-        id INT NOT NULL AUTO_INCREMENT,
+        CREATE TABLE task22(
+        id INT AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
         description TEXT,
         status VARCHAR(255) NOT NULL DEFAULT 'new',
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        PRIMARY KEY (id)
+        username INT NOT NULL,
+        FOREIGN KEY (username) REFERENCES users (user_id) ON DELETE CASCADE
         )`;
     dbConnection.query(sqlQuery, (err, result) => {
         if (err) {
@@ -283,21 +323,20 @@ app.post('/api/CreateTaskTable', async (req, res) => {
             res.status(500).send('Ошибка сервера');
             return;
         }
-        console.log('Таблица tasks создана:', result);
+        console.log('Таблица task22 создана:', result);
         res.json({
-            message: 'Таблица tasks создана',
+            message: 'Таблица task22 создана',
         });
     });
 });
-
-app.get('/api/createUsersTable', (req, res) => {
+// Cоздание таблицы пользователей
+app.post('/api/createUsersTable', (req, res) => {
     const createUsersTableQuery = `
         CREATE TABLE IF NOT EXISTS users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id  INT AUTO_INCREMENT PRIMARY KEY,
+            email VARCHAR(255) NOT NULL UNIQUE,
             username VARCHAR(255) NOT NULL UNIQUE,
-            password VARCHAR(255) NOT NULL,
-            user_id INT NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES users(id)
+            password VARCHAR(255) NOT NULL
         )
     `;
     dbConnection.query(createUsersTableQuery, (err, result) => {
@@ -310,18 +349,18 @@ app.get('/api/createUsersTable', (req, res) => {
         res.status(200).send('Users table created successfully');
     });
 })
-
-app.get('/api/createEmailTable', (req, res) => {
-    const createUsersTableQuery = `
-        CREATE TABLE email_confirmation (
+// Cоздание таблицы почты
+app.post('/api/createEmailTable', (req, res) => {
+    const createEmailTableQuery = `
+        CREATE TABLE IF NOT EXISTS email_confirmation (
         id INT AUTO_INCREMENT PRIMARY KEY,
         userId INT,
         emailConfirmToken VARCHAR(255) NOT NULL,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+        FOREIGN KEY (userId) REFERENCES users(user_id) ON DELETE CASCADE
       )
     `;
-    dbConnection.query(createUsersTableQuery, (err, result) => {
+    dbConnection.query(createEmailTableQuery, (err, result) => {
         if (err) {
             console.error('Error creating users table: ' + err.stack);
             res.status(500).send('Internal Server Error');
@@ -338,7 +377,7 @@ app.get('/getTasks', (req, res) => {
 
   
   dbConnection.query(
-    `SELECT * FROM tasks WHERE user_id = ?`,
+    `SELECT * FROM task22 WHERE user_id = ?`,
     [userId],
     (err, results) => {
       if (err) {
@@ -350,6 +389,42 @@ app.get('/getTasks', (req, res) => {
       res.json(results);
     }
   );
+});
+
+app.get('/showTables', async (req, res) => {
+  try {
+      dbConnection.query('SHOW TABLES', (err, result) => {
+          if (err) {
+              console.error('Ошибка выполнения запроса: ' + err.stack);
+              res.status(500).send('Ошибка сервера');
+              return;
+          }
+
+          console.log('Список таблиц:', result);
+          res.status(200).json(result);
+      });
+  } catch (error) {
+      console.error('Ошибка при получении списка таблиц:', error);
+      res.status(500).send('Ошибка сервера');
+  }
+});
+
+app.post('/deleteTable', async (req, res) => {
+  try {
+      dbConnection.query('DROP TABLE users', (err, result) => {
+          if (err) {
+              console.error('Ошибка выполнения запроса: ' + err.stack);
+              res.status(500).send('Ошибка сервера');
+              return;
+          }
+
+          console.log('Таблица task22 успешно удалена');
+          res.status(200).send('Таблица task22 успешно удалена');
+      });
+  } catch (error) {
+      console.error('Ошибка при удалении таблицы task22:', error);
+      res.status(500).send('Ошибка сервера');
+  }
 });
 
 // Запуск сервера

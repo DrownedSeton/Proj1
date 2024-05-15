@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="light-theme">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,7 +17,7 @@
            <li onclick="show2('block')" class="init"><a href="#">Вход</a></li>
            <li onclick="show('block')" class="reg"><a href="#">Регистрация</a></li>
            <li class="Leng"><a href="#">Язык</a></li>
-           <li class="Them"><a href="#">Тема</a></li>
+           <li class="theme"><a href="#" id="toggleTheme">Тема</a></li>
        </ul>
     </nav>
 </header>
@@ -43,11 +43,11 @@
 </div>
 
 
-    <div onclick="show2('none')" id="gray"></div>
+    <div onclick="show2('none')" id="gray1"></div>
     <div id = "window2">
         <img class="close"  src ="image/close.png" alt="" onclick="show2('none')">
         <div class = "formlog">
-            <h2>Вход</h2>
+            <h2 id="IN">Вход</h2>
             <form action="index.html">
                 <input type="text" id="username" placeholder="Имя пользователя" class="input" required>
                 <input type="password" id="password" placeholder="Пароль" class="input" required>
@@ -63,7 +63,7 @@
             <h2>Регистрация</h2>
             <form action="index.html">
             <input type="text" id="newUsername" placeholder="Имя пользователя" class="input" required>
-            <input type="email" id="Email" placeholder="Почта" class="input" required>
+            <input type="email" id="email" placeholder="Почта" class="input" required>
             <input type="password" id="newPassword" placeholder="Пароль" class="input" required>
             <input type="password" id ="provPassword"placeholder="Подтвердите пароль"  class="input"required>
             <input type="submit" value="Подтвердить" class="input">
@@ -82,21 +82,6 @@
 </div>
 
 <script src="script.js"></script> 
-<script>
-    const nightThemebtn = document.getElementById("Them")
-    nightThemebtn.addEventListener("click", function ggs(){
-       document.body.classList.toggle("light-theme") 
-    })
-    function show(state)
-    {
-        document.getElementById('window').style.display = state;
-        document.getElementById('gray').style.display = state;
-    }
-    function show2(state)
-    {
-        document.getElementById('window2').style.display = state;
-        document.getElementById('gray').style.display = state;
-    }
-</script>
+
 </body>
 </html>

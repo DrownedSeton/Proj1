@@ -1,4 +1,3 @@
-// selectors
 const todoInputs = document.querySelector(".todo-inputs");
 const todoButton = document.querySelector(".todo-button");
 const todoList = document.querySelector(".todo-list");
@@ -33,6 +32,23 @@ function addTodos(e) {
   // append list
   todoList.appendChild(todoDiv);
   todoInputs.value = "";
+
+  addTask(newTodo.innerText);
+}
+function addTask(taskName) {
+  fetch('http://localhost:3000/api/CreateTask', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({name: taskName})
+  })
+  .then(response => response.text())
+  .then(message => {
+    console.log(message);
+    loadTasks(); // Перезагружаем список задач после добавления
+  })
+  .catch(error => console.error('Error adding task:', error));
 }
 
 // function to delete or check todos
@@ -55,6 +71,21 @@ function deleteCheck(e) {
     const todo = item.parentElement;
     todo.classList.toggle("completed");
   }
+}
+
+function deleteTask(taskId) {
+  return fetch('http://localhost:3000/api/DeleteTasks/:taskId', {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({id: taskId})
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Task deleted:', data.message);
+  })
+  .catch(error => console.error('Error deleting task:', error));
 }
 
 // function to filter todos
@@ -120,7 +151,7 @@ function getTodos() {
 }
 
 // function to load tasks
-function loadTasks() {
+/*function loadTasks() {
   fetch('http://localhost:3000/api/getTasks')
     .then(response => response.json())
     .then(tasks => {
@@ -133,7 +164,7 @@ function loadTasks() {
       });
     })
     .catch(error => console.error('Error fetching tasks:', error));
-}
+}*/
 
 // function to add a task
 function addTask(taskName) {
@@ -189,7 +220,135 @@ const fetchTasks = async () => {
     }
   };
 
+  document.addEventListener('DOMContentLoaded', () => {
+    // Обработка формы входа
+    document.getElementById('window2').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      try {
+        const response = await fetch('http://localhost:3000/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await response.json();
+        localStorage.setItem('token', data.token); // Сохранение токена в localStorage
+        alert('Вы успешно вошли');
+      } catch (error) {
+        console.error('Ошибка при входе:', error);
+        alert('Ошибка при входе');
+      }
+    });
+  
+    // Обработка формы регистрации
+    document.getElementById('window').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const newUsername = document.getElementById('newUsername').value;
+      const email = document.getElementById('email').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const provPassword = document.getElementById('provPassword').value;
+      try {
+        const response = await fetch('http://localhost:3000/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email: email, username: newUsername, password: newPassword })
+        });
+        if (provPassword != newPassword) {
+          alert('Разные пароли.');
+          return;
+      } else {
+          alert('Пользователь успешно зарегистрирован');
+      }
+      } catch (error) {
+        console.error('Ошибка при регистрации:', error);
+        alert('Ошибка при регистрации');
+      }
+    });
+  });
+  document.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('token');
+    const loginButton = document.querySelector('.init');
+    const registerButton = document.querySelector('.reg');
+    if (token) {
+      // Пользователь аутентифицирован, делаем что-то...
+      // Например, получаем данные пользователя или показываем защищенные части приложения
+      // Вы можете отправить запрос на /profile маршрут для получения данных о пользователе
+      // Или просто показать определенные элементы интерфейса, доступные только аутентифицированным пользователям
+    } else {
+      loginButton.style.display = 'none';
+      registerButton.style.display = 'none';
+      // Пользователь не аутентифицирован, показываем форму входа и/или регистрации
+      // Например:
+      //document.getElementById('window2').style.display = 'block';
+      //document.getElementById('window').style.display = 'block';
+    }
+  });
+
 // Event listeners for todo functionality
 document.addEventListener("DOMContentLoaded", getTodos);
 todoButton.addEventListener("click", addTodos);
 todoList.addEventListener("click", deleteCheck);
+
+// затемнение фона 
+function show(state)
+{
+    document.getElementById('window').style.display = state;
+    document.getElementById('gray').style.display = state;
+}
+function show2(state)
+{
+    document.getElementById('window2').style.display = state;
+    document.getElementById('gray1').style.display = state;
+}
+//смена темы
+const toggleLink = document.getElementById('toggleTheme');
+const body = document.body;
+const wrapper = document.querySelector('.wrapper');
+
+toggleLink.addEventListener('click', function(e) {
+    e.preventDefault();
+    body.classList.toggle('light-theme');
+    wrapper.classList.toggle('light-theme');
+});
+//смена языка 
+document.addEventListener("DOMContentLoaded", function() {
+  var languageLink = document.querySelector(".Leng a");
+  var currentLanguage = "ru"; 
+
+  languageLink.addEventListener("click", function(event) {
+      event.preventDefault();
+
+      
+      var allElements = document.querySelectorAll("*");
+      allElements.forEach(function(element) {
+          if (element.classList.contains('init')) {
+              element.querySelector("a").textContent = currentLanguage === "ru" ? "Вход" : "Login";
+          } else if (element.classList.contains('reg')) {
+              element.querySelector("a").textContent = currentLanguage === "ru" ? "Регистрация" : "Registration";
+          } else if (element.classList.contains('theme')) {
+              element.querySelector("a").textContent = currentLanguage === "ru" ? "Тема" : "Theme";
+          } else if (element.id === 'username' || element.id === 'newUsername') {
+              element.placeholder = currentLanguage === "ru" ? "Имя пользователя" : "Username";
+          } else if (element.id === 'password' || element.id === 'newPassword') {
+              element.placeholder = currentLanguage === "ru" ? "Пароль" : "Password";
+          } else if (element.id === 'provPassword') {
+              element.placeholder = currentLanguage === "ru" ? "Подтвердите пароль" : "Confirm Password";
+          } else if (element.id === 'email') {
+              element.placeholder = currentLanguage === "ru" ? "Почта" : "Email";
+          } else if (element.type === 'submit') {
+              element.value = currentLanguage === "ru" ? "Подтвердить" : "Submit";
+          } else if (element.id === 'IN') {
+              element.textContent = currentLanguage === "ru" ? "Вход" : "Login";
+          } else if (element.tagName === 'H2') {
+              element.textContent = currentLanguage === "ru" ? "Регистрация" : "Registration";
+          }
+      });
+      languageLink.textContent = currentLanguage === "ru" ? "Язык" : "Language";
+      currentLanguage = currentLanguage === "ru" ? "en" : "ru";
+  });
+});

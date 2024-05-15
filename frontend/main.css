@@ -3,12 +3,15 @@
 *{
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
+
 html,
 body {
     font-family: "Poppins", sans-serif;
     font-weight: 400;
     font-style: normal;
+    background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(57,7,7,1) 100%);
     color: #fff;
     height: 100%;
 }
@@ -16,12 +19,7 @@ a{
     text-decoration: none ;
 }
 
-#taskList {
-    margin-bottom: 20px;
-}
-
 .wrapper{
-    background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(57,7,7,1) 100%);
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -82,13 +80,13 @@ header nav ul li.Leng a{
 header nav ul li.Leng a:hover{
     background: #ff0000;
 }
-header nav ul li.Them a{
+header nav ul li.theme a{
     background: #390707;
     padding: 9px 17px;
     border-radius: 5px;
     transition: all 500ms ease;
 }
-header nav ul li.Them a:hover{
+header nav ul li.theme a:hover{
     background: #ffffff;
     color: #000000;
 }
@@ -146,7 +144,7 @@ header nav ul li.Them a:hover{
 .close:hover{
     background: #fff;
 }
-#gray{
+#gray, #gray1{
     background-color: rgba(1,1,1,0.75);
     position: fixed;
     left: 0;
@@ -210,23 +208,27 @@ header nav ul li.Them a:hover{
 
 .todo-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
 }
 
 .todo-list {
-    min-width: 30%;
-    list-style: none;
-}
+    display: flex !important;
+    flex-direction: column !important; 
+    align-items: flex-start !important;
+    min-width: 30% !important;
+    list-style: none !important;}
 .todo {
-    background: white;
-    color: black;
+    background: #2c2c2c;
+    color: white;
     margin: 0.5rem;
     font-size: 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     transition: all 0.5s ease;
+    border-radius: 15px;
 }
 
 .todo li {
@@ -297,5 +299,17 @@ select {
     color: #fff;
 }
 
+.theme {
+    list-style: none;
+}
+
+.theme a {
+    text-decoration: none;
+}
+
+.light-theme .wrapper {
+    background: linear-gradient(90deg, rgba(88,0,0,1) 0%, rgba(218,198,198,1) 82%);
+    color: #ffffff;
+}
 
 
