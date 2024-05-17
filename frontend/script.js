@@ -1,220 +1,208 @@
-const todoInputs = document.querySelector(".todo-inputs");
-const todoButton = document.querySelector(".todo-button");
-const todoList = document.querySelector(".todo-list");
-const filterOption = document.querySelector(".filter-todos");
+const taskInput = document.getElementById('taskInput');
+const addTaskBtn = document.getElementById('addTaskBtn');
+const taskList = document.getElementById('taskList');
+const editForm = document.querySelector('.edit-form');
+const editTaskInput = document.getElementById('editTaskInput');
+const editTaskDescription = document.getElementById('editTaskDescription');
+const saveTaskBtn = document.getElementById('saveTaskBtn');
+let currentTaskId = null;
+const closeFormBtn = document.getElementById('closeFormBtn');
 
-// function to add todos
-function addTodos(e) {
-  e.preventDefault();
+//загрузка задач
+document.addEventListener('DOMContentLoaded', async () => {
+  const taskList = document.getElementById('taskList');
 
-  // todoDiv
-  const todoDiv = document.createElement("div");
-  todoDiv.classList.add("todo");
+  async function getTasksFromServer() {
+      try {
+          const response = await fetch('http://localhost:3000/api/getTasks');
+          const data = await response.json();
+          console.log('Задачи получены:', data);
+          return data;
+      } catch (error) {
+          console.error('Ошибка при получении задач:', error);
+      }
+  }
 
-  // new todo
-  const newTodo = document.createElement("li");
-  newTodo.classList.add("todo-item");
-  newTodo.innerText = todoInputs.value;
-  todoDiv.appendChild(newTodo);
+  function createTaskElement(task) {
+    const li = document.createElement('li');
+    li.classList.add('task');
 
-  // checked button
-  const completedButton = document.createElement("button");
-  completedButton.innerHTML = '<i class="fas fa-check"></i>';
-  completedButton.classList.add("complete-btn");
-  todoDiv.appendChild(completedButton);
+    const title = document.createElement('span');
+    title.classList.add('task-title');
+    title.textContent = task.title;
 
-  // trash button
-  const trashButton = document.createElement("button");
-  trashButton.innerHTML = '<i class="fas fa-trash"></i>';
-  trashButton.classList.add("trash-btn");
-  todoDiv.appendChild(trashButton);
+    const description = document.createElement('span');
+    description.classList.add('task-description');
+    description.textContent = task.description;
 
-  // append list
-  todoList.appendChild(todoDiv);
-  todoInputs.value = "";
-
-  addTask(newTodo.innerText);
-}
-function addTask(taskName) {
-  fetch('http://localhost:3000/api/CreateTask', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({name: taskName})
-  })
-  .then(response => response.text())
-  .then(message => {
-    console.log(message);
-    loadTasks(); // Перезагружаем список задач после добавления
-  })
-  .catch(error => console.error('Error adding task:', error));
-}
-
-// function to delete or check todos
-function deleteCheck(e) {
-  const item = e.target;
-
-  // delete todo
-  if (item.classList.contains("trash-btn")) {
-    const todo = item.parentElement;
-
-    // todo animation
-    todo.classList.add("fall");
-    todo.addEventListener("transitionend", function () {
-      todo.remove();
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = '🗑️';
+    deleteBtn.addEventListener('click', async () => {
+        await deleteTaskFromServer(task.id);
+        li.remove();
     });
+
+    const editBtn = document.createElement('button');
+    editBtn.textContent = '✏️';
+    editBtn.addEventListener('click', () => {
+        showEditForm(task.id);
+    });
+
+    li.appendChild(title);
+    li.appendChild(description);
+    li.appendChild(deleteBtn);
+    li.appendChild(editBtn);
+
+    return li;
+}
+  
+  async function deleteTaskFromServer(taskId) {
+    try {
+        const response = await fetch(`http://localhost:3000/api/DeleteTasks/${taskId}`, {
+            method: 'DELETE'
+        });
+        const data = await response.json();
+        console.log('Задача удалена:', data);
+    } catch (error) {
+        console.error('Ошибка при удалении задачи:', error);
+    }
   }
 
-  // complete todo
-  if (item.classList.contains("complete-btn")) {
-    const todo = item.parentElement;
-    todo.classList.toggle("completed");
-  }
-}
-
-function deleteTask(taskId) {
-  return fetch('http://localhost:3000/api/DeleteTasks/:taskId', {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({id: taskId})
-  })
-  .then(response => response.json())
-  .then(data => {
-    console.log('Task deleted:', data.message);
-  })
-  .catch(error => console.error('Error deleting task:', error));
-}
-
-// function to filter todos
-function filterTodo(e) {
-  const todos = todoList.childNodes;
-  todos.forEach(function (todo) {
-    switch (e.target.value) {
-      case "all":
-        todo.style.display = "flex";
-        break;
-      case "completed":
-        if (todo.classList.contains("completed")) {
-          todo.style.display = "flex";
-        } else {
-          todo.style.display = "none";
-        }
-        break;
-      case "uncompleted":
-        if (!todo.classList.contains("completed")) {
-          todo.style.display = "flex";
-        } else {
-          todo.style.display = "none";
-        }
-        break;
-    }
+  const tasks = await getTasksFromServer();
+  tasks.forEach(task => {
+      const taskElement = createTaskElement(task);
+      taskList.appendChild(taskElement);
   });
-}
-
-// function to retrieve todos from server
-function getTodos() {
-  // fetch todos from server
-  fetch('http://localhost:3000/api/getTasks')
-    .then(response => response.json())
-    .then(data => {
-      data.forEach(todo => {
-        // todoDiv
-        const todoDiv = document.createElement("div");
-        todoDiv.classList.add("todo");
-
-        // create li
-        const newTodo = document.createElement("li");
-        newTodo.classList.add("todo-item");
-        newTodo.innerText = todo;
-        todoDiv.appendChild(newTodo);
-
-        // checked button
-        const completedButton = document.createElement("button");
-        completedButton.innerHTML = '<i class="fas fa-check"></i>';
-        completedButton.classList.add("complete-btn");
-        todoDiv.appendChild(completedButton);
-
-        // trash button
-        const trashButton = document.createElement("button");
-        trashButton.innerHTML = '<i class="fas fa-trash"></i>';
-        trashButton.classList.add("trash-btn");
-        todoDiv.appendChild(trashButton);
-
-        // append list
-        todoList.appendChild(todoDiv);
-      });
-    })
-    .catch(error => console.error('Error fetching todos:', error));
-}
-
-// function to load tasks
-/*function loadTasks() {
-  fetch('http://localhost:3000/api/getTasks')
-    .then(response => response.json())
-    .then(tasks => {
-      const taskList = document.getElementById('taskList');
-      taskList.innerHTML = '';
-      tasks.forEach(task => {
-        const li = document.createElement('li');
-        li.textContent = task.name;
-        taskList.appendChild(li);
-      });
-    })
-    .catch(error => console.error('Error fetching tasks:', error));
-}*/
-
-// function to add a task
-function addTask(taskName) {
-  fetch('http://localhost:3000/api/CreateTask', {
-    method: 'POST', 
-    headers: {
-      'Content-Type': 'application/json'
-    }, 
-    body: JSON.stringify({name: taskName})
-  })
-  .then(response => response.text())
-  .then(message => {
-    console.log(message);
-    loadTasks(); 
-  })
-  .catch(error => console.error('Error adding task:', error));
-}
-
-// event listeners
-document.addEventListener("DOMContentLoaded", () => {
-  // Load tasks on page load
-  loadTasks();
-
-  // Form submission for adding tasks
-  document.getElementById('taskForm').addEventListener('submit', function (event) {
-    event.preventDefault(); 
-    const taskInput = document.getElementById('taskInput');
-    const taskName = taskInput.value.trim();
-    if (taskName !== '') {
-      addTask(taskName); 
-      taskInput.value = ''; 
-    }
-  });
-
-  // Event listener for filtering todos
-  filterOption.addEventListener("click", filterTodo);
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const taskList = document.getElementById('taskList');
+
+  function createTaskElement(task) {
+      const li = document.createElement('li');
+      li.classList.add('task');
+
+      const title = document.createElement('span');
+      title.classList.add('task-title');
+      title.textContent = task.title;
+
+      const description = document.createElement('span');
+      description.classList.add('task-description');
+      description.textContent = task.description;
+
+      li.appendChild(title);
+      li.appendChild(description);
+
+      return li;
+  }
+
+  function addTask(title, description) {
+      const task = { title, description };
+      const taskElement = createTaskElement(task);
+      taskList.appendChild(taskElement);
+  }
+
+  const addTaskBtn = document.getElementById('addTaskBtn');
+  addTaskBtn.addEventListener('click', () => {
+      const taskInput = document.getElementById('taskInput');
+      const editTaskDescription = document.getElementById('editTaskDescription');
+      addTask(taskInput.value, editTaskDescription.value);
+      taskInput.value = '';
+      editTaskDescription.value = '';
+      location.reload();
+  });
+
+});
+
+// Функция для добавления задачи на сервер
+async function addTaskToServer(title, description, status) {
+  try {
+      const response = await fetch('http://localhost:3000/api/CreateTask', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          mode: 'cors',
+          body: JSON.stringify({ title, description, status }),
+      });
+      const data = await response.json();
+      console.log('Задача создана:', data);
+      return data;
+  } catch (error) {
+      console.error('Ошибка при создании задачи:', error);
+  }
+}
+addTaskBtn.addEventListener('click', async () => {
+  const taskName = taskInput.value.trim();
+  if (taskName) {
+      const newTask = await addTaskToServer(taskName, '', 'new'); 
+      const li = document.createElement('li');
+      li.textContent = newTask.title;
+      taskList.appendChild(li);
+      taskInput.value = '';
+  }
+});
+
+function showEditForm(taskId) {
+  currentTaskId = taskId;
+  editForm.style.display = 'block';
+}
+
+saveTaskBtn.addEventListener('click', () => {
+  const newTaskName = editTaskInput.value.trim();
+  const newTaskDescription = editTaskDescription.value.trim();
+  console.log('Значение taskId:', currentTaskId); 
+  if (newTaskName && currentTaskId) {
+    updateTaskOnServer(currentTaskId, newTaskName, newTaskDescription, 'in progress')
+          .then(() => {
+              taskList.childNodes.forEach(node => {
+                  if (node.textContent === currentTaskId) {
+                      node.textContent = newTaskName;
+                  }
+              });
+              closeEditForm();
+              location.reload();
+          }); 
+  }
+});
+
+// Функция для обновления задачи на сервере
+async function updateTaskOnServer(taskId, title, description, status) {
+  try {
+      const response = await fetch(`http://localhost:3000/api/UpdateTasks/${taskId}`, {
+          method: 'PUT',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ title, description, status }),
+      });
+      const data = await response.json();
+      console.log('Задача обновлена:', data);
+      return data;
+  } catch (error) {
+      console.error('Ошибка при обновлении задачи:', error);
+  }
+}
+
+function closeEditForm() {
+  editForm.style.display = 'none';
+  editTaskInput.value = '';
+  editTaskDescription.value = '';
+  currentTaskId = null;
+}
+
 
 
 const fetchTasks = async () => {
     try {
-      const response = await fetch('/getTasks', {
+      const response = await fetch('http://localhost:3000/api/getTasks', {
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}` // Передача токена авторизации
+          Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       });
       const data = await response.json();
       console.log('Задачи текущего пользователя:', data);
-      // Далее обрабатываем полученные задачи на клиенте
     } catch (error) {
       console.error('Ошибка при получении задач:', error);
     }
@@ -235,7 +223,7 @@ const fetchTasks = async () => {
           body: JSON.stringify({ username, password })
         });
         const data = await response.json();
-        localStorage.setItem('token', data.token); // Сохранение токена в localStorage
+        localStorage.setItem('token', data.token); 
         alert('Вы успешно вошли');
       } catch (error) {
         console.error('Ошибка при входе:', error);
@@ -275,25 +263,14 @@ const fetchTasks = async () => {
     const loginButton = document.querySelector('.init');
     const registerButton = document.querySelector('.reg');
     if (token) {
-      // Пользователь аутентифицирован, делаем что-то...
-      // Например, получаем данные пользователя или показываем защищенные части приложения
-      // Вы можете отправить запрос на /profile маршрут для получения данных о пользователе
-      // Или просто показать определенные элементы интерфейса, доступные только аутентифицированным пользователям
+      // Пользователь аутентифицирован
     } else {
       loginButton.style.display = 'none';
       registerButton.style.display = 'none';
-      // Пользователь не аутентифицирован, показываем форму входа и/или регистрации
-      // Например:
-      //document.getElementById('window2').style.display = 'block';
-      //document.getElementById('window').style.display = 'block';
+      // Пользователь не аутентифицирован
     }
   });
-
-// Event listeners for todo functionality
-document.addEventListener("DOMContentLoaded", getTodos);
-todoButton.addEventListener("click", addTodos);
-todoList.addEventListener("click", deleteCheck);
-
+  
 // затемнение фона 
 function show(state)
 {
@@ -305,50 +282,78 @@ function show2(state)
     document.getElementById('window2').style.display = state;
     document.getElementById('gray1').style.display = state;
 }
+
 //смена темы
 const toggleLink = document.getElementById('toggleTheme');
 const body = document.body;
 const wrapper = document.querySelector('.wrapper');
+const theme = localStorage.getItem('theme'); 
+
+if (theme) {
+    body.classList.add(theme);
+    wrapper.classList.add(theme);
+}
 
 toggleLink.addEventListener('click', function(e) {
     e.preventDefault();
     body.classList.toggle('light-theme');
     wrapper.classList.toggle('light-theme');
+
+    if (body.classList.contains('light-theme')) {
+        localStorage.setItem('theme', 'light-theme');
+    } else {
+        localStorage.removeItem('theme');
+    }
 });
 //смена языка 
 document.addEventListener("DOMContentLoaded", function() {
   var languageLink = document.querySelector(".Leng a");
-  var currentLanguage = "ru"; 
+  var currentLanguage = localStorage.getItem('language') || "ru"; 
+
+  function updateTextContent(language) {
+    var allElements = document.querySelectorAll("*");
+    allElements.forEach(function(element) {
+      if (element.classList.contains('init')) {
+          element.querySelector("a").textContent = currentLanguage === "ru" ? "Вход" : "Login";
+      } else if (element.classList.contains('reg')) {
+          element.querySelector("a").textContent = currentLanguage === "ru" ? "Регистрация" : "Registration";
+      } else if (element.classList.contains('theme')) {
+          element.querySelector("a").textContent = currentLanguage === "ru" ? "Тема" : "Theme";
+      } else if (element.id === 'username' || element.id === 'newUsername') {
+          element.placeholder = currentLanguage === "ru" ? "Имя пользователя" : "Username";
+      } else if (element.id === 'password' || element.id === 'newPassword') {
+          element.placeholder = currentLanguage === "ru" ? "Пароль" : "Password";
+      } else if (element.id === 'provPassword') {
+          element.placeholder = currentLanguage === "ru" ? "Подтвердите пароль" : "Confirm Password";
+      } else if (element.id === 'email') {
+          element.placeholder = currentLanguage === "ru" ? "Почта" : "Email";
+      } else if (element.type === 'submit') {
+          element.value = currentLanguage === "ru" ? "Подтвердить" : "Submit";
+      } else if (element.id === 'IN') {
+          element.textContent = currentLanguage === "ru" ? "Вход" : "Login";
+      } else if (element.tagName === 'H2') {
+          element.textContent = currentLanguage === "ru" ? "Регистрация" : "Registration";
+      } else if (element.id === 'taskInput') {
+        element.placeholder = language === "ru" ? "Название задачи" : "Task Name";
+      }else if (element.id === 'editTaskInput') {
+        element.placeholder = language === "ru" ? "Новое название" : "New Name";
+      }else if (element.id === 'editTaskDescription') {
+        element.placeholder = language === "ru" ? "Описание" : "Description";
+      }
+  });
+    languageLink.textContent = language === "ru" ? "Язык" : "Language";
+  }
+
+  updateTextContent(currentLanguage);
 
   languageLink.addEventListener("click", function(event) {
       event.preventDefault();
-
-      
-      var allElements = document.querySelectorAll("*");
-      allElements.forEach(function(element) {
-          if (element.classList.contains('init')) {
-              element.querySelector("a").textContent = currentLanguage === "ru" ? "Вход" : "Login";
-          } else if (element.classList.contains('reg')) {
-              element.querySelector("a").textContent = currentLanguage === "ru" ? "Регистрация" : "Registration";
-          } else if (element.classList.contains('theme')) {
-              element.querySelector("a").textContent = currentLanguage === "ru" ? "Тема" : "Theme";
-          } else if (element.id === 'username' || element.id === 'newUsername') {
-              element.placeholder = currentLanguage === "ru" ? "Имя пользователя" : "Username";
-          } else if (element.id === 'password' || element.id === 'newPassword') {
-              element.placeholder = currentLanguage === "ru" ? "Пароль" : "Password";
-          } else if (element.id === 'provPassword') {
-              element.placeholder = currentLanguage === "ru" ? "Подтвердите пароль" : "Confirm Password";
-          } else if (element.id === 'email') {
-              element.placeholder = currentLanguage === "ru" ? "Почта" : "Email";
-          } else if (element.type === 'submit') {
-              element.value = currentLanguage === "ru" ? "Подтвердить" : "Submit";
-          } else if (element.id === 'IN') {
-              element.textContent = currentLanguage === "ru" ? "Вход" : "Login";
-          } else if (element.tagName === 'H2') {
-              element.textContent = currentLanguage === "ru" ? "Регистрация" : "Registration";
-          }
-      });
-      languageLink.textContent = currentLanguage === "ru" ? "Язык" : "Language";
       currentLanguage = currentLanguage === "ru" ? "en" : "ru";
+      updateTextContent(currentLanguage);
+      localStorage.setItem('language', currentLanguage);
   });
+});
+document.getElementById('closeFormBtn').addEventListener('click', function() {
+  document.querySelector('.edit-form').style.display = 'none';
+  document.body.style.overflow = 'auto';
 });

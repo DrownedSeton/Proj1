@@ -39,13 +39,8 @@ app.get('/api/getTasks', (req, res) => {
 
 // Создание новой задачи
 app.post('/api/CreateTask', async (req, res) => {
-    const { title, description,username, status = 'new' } = req.body;
-    
-    if (!title) {
-      res.status(400).send('Не указано имя задачи');
-      return;
-  }
-    const sqlQuery = `INSERT INTO task22 (title, description,username, status) VALUES ('${title}', '${description}','${username}', '${status}')`;
+    const { title, description, status = 'new' } = req.body;
+    const sqlQuery = `INSERT INTO task22 (title, description, status) VALUES ('${title}', '${description}','${status}')`;
 
     dbConnection.query(sqlQuery, (err, result) => {
         if (err) {
@@ -58,7 +53,6 @@ app.post('/api/CreateTask', async (req, res) => {
             id: result.id,
             title,
             description,
-            username,
             status,
         });
     });
@@ -69,9 +63,8 @@ app.put('/api/UpdateTasks/:taskId', async (req, res) => {
     const taskId = req.params.taskId;
     const { title, description, status } = req.body;
     
-    const sqlQuery = `UPDATE task22 SET title = '${title}', description = '${description}', status = '${status}' WHERE id = ${taskId}`;
-
-    dbConnection.query(sqlQuery, (err, result) => {
+    const sqlQuery = 'UPDATE task22 SET title = ?, description = ?, status = ? WHERE id = ?';
+    dbConnection.query(sqlQuery, [title, description, status, taskId], (err, result) => {
         if (err) {
             console.error('Ошибка выполнения запроса: ' + err.stack);
             res.status(500).send('Ошибка сервера');
@@ -89,21 +82,24 @@ app.put('/api/UpdateTasks/:taskId', async (req, res) => {
 
 // Удаление задачи
 app.delete('/api/DeleteTasks/:taskId', async (req, res) => {
-    const taskId = req.params.taskId;
-    
-    const sqlQuery = `DELETE FROM task22 WHERE id = ${taskId}`;
+  const taskId = req.params.taskId;
+  
+  if (!taskId) {
+      return res.status(400).send('Task ID is missing');
+  }
 
-    dbConnection.query(sqlQuery, (err, result) => {
-        if (err) {
-            console.error('Ошибка выполнения запроса: ' + err.stack);
-            res.status(500).send('Ошибка сервера');
-            return;
-        }
-        console.log('Задача удалена:', result);
-        res.json({
-            id: taskId,
-        });
-    });
+  const sqlQuery = `DELETE FROM task22 WHERE id = '${taskId}'`;
+
+  dbConnection.query(sqlQuery, (err, result) => {
+      if (err) {
+          console.error('Error executing query: ' + err.stack);
+          return res.status(500).send('Server error');
+      }
+      console.log('Task deleted:', result);
+      res.json({
+          id: taskId,
+      });
+  });
 });
 
 //регистрация
@@ -314,8 +310,8 @@ app.post('/api/CreateTable', async (req, res) => {
         status VARCHAR(255) NOT NULL DEFAULT 'new',
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        username INT NOT NULL,
-        FOREIGN KEY (username) REFERENCES users (user_id) ON DELETE CASCADE
+        user INT NOT NULL DEFAULT 0,
+        FOREIGN KEY (user) REFERENCES users (user_id) ON DELETE CASCADE
         )`;
     dbConnection.query(sqlQuery, (err, result) => {
         if (err) {

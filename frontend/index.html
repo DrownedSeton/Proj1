@@ -24,24 +24,27 @@
 
 <div class = "content">
 <div class="formtodo">
-    <form class="formtodo">
-        <input type="text" class='todo-inputs'>
-        <button class='todo-button'>
-            <i class='fas fa-plus-square'></i>
-        </button>
-        <div class="select">
-            <select name="todos" class='filter-todos'>
-                <option value="all">Все</option>
-                <option value="completed">Выполненные</option>
-                <option value="uncompleted">Не выполненные </option>
-            </select>
-        </div>
-    </form>
+
     <div class="todo-container">
-        <ul class="todo-list"></ul>
+        <div class="input-container">
+            <input type="text" id="taskInput" placeholder="Название задачи">
+            <button id="addTaskBtn">+</button>
+        </div>
+        <ul id="taskList"></ul>
+    </div>
+    <div class="edit-form" style="display: none;">
+        <div>
+            <input type="text" id="editTaskInput" placeholder="Новое название">
+        </div>
+        <div>
+            <input id="editTaskDescription" placeholder="Описание">
+        </div>
+        <div>
+            <button id="saveTaskBtn">✓</button>
+            <button id="closeFormBtn">X</button>
+        </div>
     </div>
 </div>
-
 
     <div onclick="show2('none')" id="gray1"></div>
     <div id = "window2">
