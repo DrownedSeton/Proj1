@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" type="text/css" href="main.css">
+
+</head>
+<body>
+<div class = "wrapper">
+<header class="container">
+    <span class ="logo">To-Do List</span>
+    <nav>
+       <ul>
+           <li onclick="show2('block')" class="init"><a href="#">Вход</a></li>
+           <li onclick="show('block')" class="reg"><a href="#">Регистрация</a></li>
+           <li class="Leng"><a href="#">Язык</a></li>
+           <li class="theme"><a href="#" id="toggleTheme">Тема</a></li>
+       </ul>
+    </nav>
+</header>
+
+<div class = "content">
+<div class="formtodo">
+
+    <div class="todo-container">
+        <div class="input-container">
+            <input type="text" id="taskInput" placeholder="Название задачи">
+            <button id="addTaskBtn">+</button>
+        </div>
+        <ul id="taskList"></ul>
+    </div>
+    <div class="edit-form" style="display: none;">
+        <div>
+            <input type="text" id="editTaskInput" placeholder="Новое название">
+        </div>
+        <div>
+            <input id="editTaskDescription" placeholder="Описание">
+        </div>
+        <div>
+            <button id="saveTaskBtn">✓</button>
+            <button id="closeFormBtn">X</button>
+        </div>
+    </div>
+</div>
+
+    <div onclick="show2('none')" id="gray1"></div>
+    <div id = "window2">
+        <img class="close"  src ="image/close.png" alt="" onclick="show2('none')">
+        <div class = "formlog">
+            <h2 id="IN">Вход</h2>
+            <form action="index.html">
+                <input type="text" id="username" placeholder="Имя пользователя" class="input" required>
+                <input type="password" id="password" placeholder="Пароль" class="input" required>
+                <input type="submit" value="Подтвердить" class="input">
+            </form>
+        </div>
+    </div>
+
+    <div onclick="show('none')" id="gray"></div>
+    <div id = "window">
+        <img class="close"  src ="image/close.png" alt="" onclick="show('none')">
+        <div class = "formreg">
+            <h2>Регистрация</h2>
+            <form action="index.html">
+            <input type="text" id="newUsername" placeholder="Имя пользователя" class="input" required>
+            <input type="email" id="email" placeholder="Почта" class="input" required>
+            <input type="password" id="newPassword" placeholder="Пароль" class="input" required>
+            <input type="password" id ="provPassword"placeholder="Подтвердите пароль"  class="input"required>
+            <input type="submit" value="Подтвердить" class="input">
+            </form>
+        </div>
+   </div>
+
+
+</div class = "footer">
+<footer>
+        <div class = "footer">
+            <p class = "made-by">Made By</p>
+            <p class = "author">Drowned Seton</p>
+        </div>
+    </footer>
+</div>
+
+<script src="script.js"></script> 
+
+</body>
+</html>
