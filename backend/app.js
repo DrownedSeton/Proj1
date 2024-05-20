@@ -407,7 +407,7 @@ app.get('/showTables', async (req, res) => {
 
 app.post('/deleteTable', async (req, res) => {
   try {
-      dbConnection.query('DROP TABLE users', (err, result) => {
+      dbConnection.query('DROP TABLE folders', (err, result) => {
           if (err) {
               console.error('Ошибка выполнения запроса: ' + err.stack);
               res.status(500).send('Ошибка сервера');
@@ -422,6 +422,98 @@ app.post('/deleteTable', async (req, res) => {
       res.status(500).send('Ошибка сервера');
   }
 });
+
+
+//папки
+app.get('/api/getFolders', (req, res) => {
+  dbConnection.query('SELECT * FROM folders', (err, results) => {
+      if (err) {
+          console.error('Ошибка выполнения запроса: ' + err.stack);
+          res.status(500).send('Ошибка сервера');
+          return;
+      }
+      console.log('Результаты запроса:', results);
+      res.json(results);
+  });
+});
+
+app.post('/api/CreateFolder', async (req, res) => {
+  const { name, parent } = req.body;
+  
+  const sqlQuery = `INSERT INTO folders (name, parent) VALUES ('${name}', ${parent || 0})`;
+  
+  dbConnection.query(sqlQuery, (err, result) => {
+    if (err) {
+      console.error('Ошибка выполнения запроса: ' + err.stack);
+      res.status(500).send('Ошибка сервера');
+      return;
+    }
+    console.log('Папка создана:', result);
+    res.json({
+      id: result.insertId,
+      name,
+      parent,
+    });
+  });
+});
+
+app.put('/api/UpdateFolders/:folderId', async (req, res) => {
+  const folderId = req.params.folderId;
+  const { name, parent } = req.body;
+  
+  const sqlQuery = 'UPDATE folders SET name = ?, parent = ? WHERE id = ?';
+  dbConnection.query(sqlQuery, [name, parent, folderId], (err, result) => {
+    if (err) {
+      console.error('Ошибка выполнения запроса: ' + err.stack);
+      res.status(500).send('Ошибка сервера');
+      return;
+    }
+    console.log('Папка обновлена:', result);
+    res.json({
+      id: folderId,
+      name,
+      parent,
+    });
+  });
+});
+
+app.delete('/api/DeleteFolder/:folderId', async (req, res) => {
+  const folderId = req.params.folderId;
+
+  const sqlQuery = 'DELETE FROM folders WHERE id = ?';
+  dbConnection.query(sqlQuery, [folderId], (err, result) => {
+    if (err) {
+      console.error('Ошибка выполнения запроса: ' + err.stack);
+      res.status(500).send('Ошибка сервера');
+      return;
+    }
+    console.log('Папка удалена:', result);
+    res.json({
+      message: 'Папка удалена',
+    });
+  });
+});
+
+app.post('/api/CreateFolderTable', async (req, res) => {
+  const sqlQuery = `
+      CREATE TABLE folders(
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      parent INT NOT NULL DEFAULT 0
+      )`;
+  dbConnection.query(sqlQuery, (err, result) => {
+      if (err) {
+          console.error('Ошибка выполнения запроса: ' + err.stack);
+          res.status(500).send('Ошибка сервера');
+          return;
+      }
+      console.log('Таблица folders создана:', result);
+      res.json({
+          message: 'Таблица folders создана',
+      });
+  });
+});
+
 
 // Запуск сервера
 app.listen(port, () => {
