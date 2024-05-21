@@ -1,5 +1,11 @@
 // файл ./config/index.js
 const fs = require('fs');
+const express = require('express');
+
+const app = express();
+app.get('/', function(req, res) {
+res.render('/index.html');
+});
 
 const config = {
     db: {
@@ -10,7 +16,7 @@ const config = {
             password: 'AVNS_vHOnKAWv5W82JkrFdF3', // замените это на пароль от своего пользователя
             port: 25060, // порт базы данных
             ssl: {
-                ca: fs.readFileSync('C:/Git/Proj1/backend/config/ca-certificate-test.crt'), // Путь к файлу ca.crt
+                ca: fs.readFileSync('config/ca-certificate-test.crt'), // Путь к файлу ca.crt
             }
         },
     },

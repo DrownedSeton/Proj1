@@ -274,8 +274,7 @@ const fetchTasks = async () => {
     if (token) {
       // Пользователь аутентифицирован
     } else {
-      loginButton.style.display = 'none';
-      registerButton.style.display = 'none';
+
       // Пользователь не аутентифицирован
     }
   });

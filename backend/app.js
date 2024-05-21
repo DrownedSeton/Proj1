@@ -3,7 +3,7 @@ const express = require('express');
 const mysql = require('mysql');
 const config = require('./config');
 const cors = require('cors');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const app = express();
 const nodemailer = require('nodemailer');
@@ -57,6 +57,10 @@ app.post('/api/CreateTask', async (req, res) => {
         });
     });
 });
+
+const path = require('path');
+app.use(express.static(__dirname));
+app.use(express.static("public"));
 
 // Обновление задачи
 app.put('/api/UpdateTasks/:taskId', async (req, res) => {
@@ -220,9 +224,6 @@ app.post('/register', async (req, res) => {
               }
   
               console.log('Код подтверждения успешно удален');
-  
-              // Можно пометить пользователя как подтвержденного в таблице users
-              // Например: UPDATE users SET isConfirmed = true WHERE id = userId;
   
               res.status(200).send('Регистрация успешно подтверждена');
             }
