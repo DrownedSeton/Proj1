@@ -557,6 +557,19 @@ app.post('/api/AddTaskToFolder', async (req, res) => {
   });
 });
 
+app.get('/api/getTasksFolder', (req, res) => {
+  const query = 'SELECT * FROM task22 WHERE folder_id IS NOT NULL';
+  dbConnection.query(query, (err, results) => {
+    if (err) {
+      console.error('Ошибка выполнения запроса: ' + err.stack);
+      res.status(500).send('Ошибка сервера');
+      return;
+    }
+    console.log('Результаты запроса:', results);
+    res.json(results);
+  });
+});
+
 // Запуск сервера
 app.listen(port, () => {
     console.log(`Сервер запущен на порту ${port}`);
