@@ -1,6 +1,12 @@
 // файл ./config/index.js
 const fs = require('fs');
 
+const express = require('express');
+const app = express();
+app.get('/', function(req, res) {
+res.render('/index.html');
+});
+
 const config = {
     db: {
         mysql : {
@@ -17,13 +23,6 @@ const config = {
     port: 3000, // порт на котором будет запущен сервер приложения
     jwtSecret: 'myverymegaextrasecretkey'
 };
-
-const express = require('express');
-const app = express();
-app.get('/', function(req, res) {
-res.render('/index.html');
-});
-
 
 module.exports =  config;
 
