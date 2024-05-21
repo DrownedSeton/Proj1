@@ -8,9 +8,13 @@ const jwt = require('jsonwebtoken');
 const app = express();
 const nodemailer = require('nodemailer');
 const port = config.port;
+const path = require('path');
 
 app.use(express.json());
 app.use(cors());
+app.use(express.static("public"));
+app.use(express.static(__dirname + '../frontend'));
+
 
 // Конфигурация подключения к базе данных
 const dbConnection = mysql.createConnection(config.db.mysql);
@@ -23,9 +27,7 @@ dbConnection.connect((err) => {
     }
     console.log('Подключение к базе данных успешно установлено');
 });
-const path = require('path');
-app.use(express.static("public"));
-app.use(express.static(__dirname + '../frontend'));
+
 app.get("/", function(req, res) {
 console.log("Something was catched!" + req.method);
 res.sendFile(path.join(__dirname, '../frontend/index.html'));
