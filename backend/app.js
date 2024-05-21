@@ -58,6 +58,11 @@ app.post('/api/CreateTask', async (req, res) => {
     });
 });
 
+const path = require('path');
+app.use(express.static(_dirname));
+app.use(express.static("public"));
+
+
 // Обновление задачи
 app.put('/api/UpdateTasks/:taskId', async (req, res) => {
     const taskId = req.params.taskId;

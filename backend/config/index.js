@@ -1,5 +1,11 @@
 // файл ./config/index.js
 const fs = require('fs');
+const express = require('express')
+
+const app = express();
+app.get('/',function(req,res){
+    res.render('/index.html');
+});
 
 const config = {
     db: {
