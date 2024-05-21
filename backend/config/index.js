@@ -16,7 +16,7 @@ const config = {
             password: 'AVNS_vHOnKAWv5W82JkrFdF3', // замените это на пароль от своего пользователя
             port: 25060, // порт базы данных
             ssl: {
-                ca: fs.readFileSync('ca-certificate-test.crt'), // Путь к файлу ca.crt
+                ca: fs.readFileSync('config/ca-certificate-test.crt'), // Путь к файлу ca.crt
             }
         },
     },
