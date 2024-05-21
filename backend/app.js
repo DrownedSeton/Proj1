@@ -23,10 +23,14 @@ dbConnection.connect((err) => {
     }
     console.log('Подключение к базе данных успешно установлено');
 });
-
 const path = require('path');
 app.use(express.static(__dirname));
 app.use(express.static("public"));
+app.use(express.static(__dirname + '/frontend'));
+app.get("/", function(req, res) {
+console.log("Something was catched!" + req.method);
+res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
 
 // Получение всех задач
 app.get('/api/getTasks', (req, res) => {
