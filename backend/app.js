@@ -24,6 +24,10 @@ dbConnection.connect((err) => {
     console.log('Подключение к базе данных успешно установлено');
 });
 
+const path = require('path');
+app.use(express.static(__dirname));
+app.use(express.static("public"));
+
 // Получение всех задач
 app.get('/api/getTasks', (req, res) => {
     dbConnection.query('SELECT * FROM task22', (err, results) => {
@@ -57,11 +61,6 @@ app.post('/api/CreateTask', async (req, res) => {
         });
     });
 });
-
-const path = require('path');
-app.use(express.static(__dirname));
-app.use(express.static("public"));
-
 // Обновление задачи
 app.put('/api/UpdateTasks/:taskId', async (req, res) => {
     const taskId = req.params.taskId;
