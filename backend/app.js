@@ -8,11 +8,13 @@ const jwt = require('jsonwebtoken');
 const app = express();
 const nodemailer = require('nodemailer');
 const port = config.port;
+const express = require('express');
 const path = require('path');
 
 app.use(express.json());
 app.use(cors());
-app.use(express.static(__dirname + '../frontend'));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '/frontend')));
 
  
 // Конфигурация подключения к базе данных
@@ -27,9 +29,8 @@ dbConnection.connect((err) => {
     console.log('Подключение к базе данных успешно установлено');
 });
 
-app.get("/", function(req, res) {
-console.log("Something was catched!" + req.method);
-res.sendFile(path.join(__dirname, '../frontend/index.html'));
+app.get('/', function(req, res) {
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 // Получение всех задач
