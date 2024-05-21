@@ -1,7 +1,7 @@
 const taskInput = document.getElementById('taskInput');
 const addTaskBtn = document.getElementById('addTaskBtn');
 const taskList = document.getElementById('taskList');
-const taskListinfolder = document.getElementById('taskList');
+const taskListinfolder = document.getElementById('taskListinfolder');
 const editForm = document.querySelector('.edit-form');
 const editForm2 = document.querySelector('.edit-form2');
 const editForm3 = document.querySelector('.edit-form3');
@@ -12,7 +12,7 @@ const saveTaskBtn = document.getElementById('saveTaskBtn');
 const saveFolderBtn = document.getElementById('saveFolderBtn');
 const saveFolderBtnTask = document.getElementById('saveFolderBtnTask');
 let currentTaskId = null;
-let currentFolderd = null;
+let currentFolderId = null;
 const closeFormBtn = document.getElementById('closeFormBtn');
 const closeFormBtn2 = document.getElementById('closeFormBtn2');
 const closeFormBtn3 = document.getElementById('closeFormBtn3');
@@ -386,6 +386,11 @@ document.getElementById('closeFormBtn3').addEventListener('click', function() {
 
 const addFolderBtn = document.getElementById('addFolderBtn');
 const foldersContainer = document.getElementById('foldersContainer');
+const addTaskFolderInput = document.getElementById('addTaskFolderInput');
+addTaskFolderInput.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  await handleAddTaskToFolder();
+});
 
 addFolderBtn.addEventListener('click', async () => {
   const folderInput = document.getElementById('folderInput');
@@ -448,17 +453,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     return li;
   }
-
-  function showEditForm3(taskId) {
-    currentTaskId = taskId;
-    editForm3.style.display = 'block';
-  }
-
-  function showEditForm2(folderId) {
-    currentFolderId = folderId;
-    editForm2.style.display = 'block';
-  }
-
   saveFolderBtn.addEventListener('click', () => {
     const newFolderName = editFolderInput.value.trim();
     console.log('Значение FolderId:', currentFolderId); 
@@ -485,6 +479,115 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   displayFolders();
 });
+
+/*saveFolderBtnTask.addEventListener('click', async () => {
+  const taskTitle = document.getElementById('addTaskFolderInput').value;
+  const folderId = currentFolderId; 
+  await handleAddTaskToFolder();
+});
+
+async function handleAddTaskToFolder(folderId) {
+  const taskTitle = addTaskFolderInput.value;
+
+  const response = await fetch('http://localhost:3000/api/AddTaskToFolder', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      title: taskTitle,
+      folderId,
+    }),
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    console.log('Задача перемещена:', data);
+
+    const taskListElement = document.getElementById('taskList');
+    if (taskListElement) {
+      const taskItemElement = taskListElement.querySelector(`[data-task="${taskTitle}"]`);
+      if (taskItemElement) {
+        taskItemElement.remove();
+
+        const newTaskItem = document.createElement('li');
+        newTaskItem.textContent = taskTitle;
+        newTaskItem.setAttribute('data-task', taskTitle);
+        taskListinfolder.appendChild(newTaskItem);
+      } else {
+        console.error('Task item not found');
+      }
+    } else {
+      console.error('Task list not found');
+    }
+  } else {
+    console.error('Ошибка выполнения запроса:', response.status, response.statusText);
+  }
+}*/
+
+
+saveFolderBtnTask.addEventListener('click', async (event) => {
+  const taskTitle = document.getElementById('addTaskFolderInput').value;
+  const folderId = currentFolderId; 
+
+  await handleAddTaskToFolder(event, taskTitle, folderId);
+});
+
+async function handleAddTaskToFolder(event, taskTitle, folderId) {
+  event.preventDefault();
+
+  const taskName = taskTitle.trim();
+
+  try {
+    const response = await fetch('http://localhost:3000/api/AddTaskToFolder', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        title: taskName,
+        folderId: folderId
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Ошибка добавления задачи в папку1');
+    }
+
+    const data = await response.json();
+
+    if (data) {
+      const taskElement = taskList.querySelector(`[data-task-name="${taskName}"]`);
+      if (taskElement) {
+        taskElement.remove();
+      }
+
+      const newTaskElement = document.createElement('li');
+      newTaskElement.textContent = taskName;
+      newTaskElement.setAttribute('data-task-name', taskName);
+      taskListinfolder.appendChild(newTaskElement); 
+
+      console.log('Задача добавлена:', taskName);
+    } else {
+      throw new Error('Ошибка добавления задачи в папку2: ' + (data ? data.error : 'Unknown error'));
+    }
+  } catch (error) {
+    console.error('Ошибка добавления задачи в папку3:', error);
+  }
+}
+
+
+
+
+function showEditForm2(folderId) {
+  currentFolderId = folderId;
+  editForm2.style.display = 'block';
+}
+
+function showEditForm3(folderId) {
+  currentFolderId = folderId;
+  editForm3.style.display = 'block';
+}
 
 async function addFolderToServer(folderName) {
   try {
@@ -560,23 +663,6 @@ foldersContainer.addEventListener('click', async (event) => {
     event.target.remove();
   }
 });
-
-async function addTaskToFolder(taskId, folderId) {
-  try {
-    const response = await fetch(`http://localhost:3000/api/AddTaskToFolder/${taskId}/${folderId}`, {
-      method: 'PUT'
-    });
-    if (!response.ok) {
-      throw new Error('Failed to add task to folder');
-    }
-    const data = await response.json();
-    console.log('Task added to folder:', data);
-    return data;
-  } catch (error) {
-    console.error('Error adding task to folder:', error);
-    throw error;
-  }
-}
 
 taskList.addEventListener('click', async (event) => {
   if (event.target.tagName === 'LI') {

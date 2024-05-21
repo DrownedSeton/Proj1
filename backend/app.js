@@ -310,8 +310,8 @@ app.post('/api/CreateTable', async (req, res) => {
         status VARCHAR(255) NOT NULL DEFAULT 'new',
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        user INT NOT NULL DEFAULT 0,
-        FOREIGN KEY (user) REFERENCES users (user_id) ON DELETE CASCADE
+        folder_id INT,
+        FOREIGN KEY (folder_id) REFERENCES folders (id) ON DELETE CASCADE
         )`;
     dbConnection.query(sqlQuery, (err, result) => {
         if (err) {
@@ -407,7 +407,7 @@ app.get('/showTables', async (req, res) => {
 
 app.post('/deleteTable', async (req, res) => {
   try {
-      dbConnection.query('DROP TABLE folders', (err, result) => {
+      dbConnection.query('DROP TABLE task22', (err, result) => {
           if (err) {
               console.error('Ошибка выполнения запроса: ' + err.stack);
               res.status(500).send('Ошибка сервера');
@@ -514,6 +514,48 @@ app.post('/api/CreateFolderTable', async (req, res) => {
   });
 });
 
+app.post('/api/AddTaskToFolder', async (req, res) => {
+  const { title, folderId } = req.body;
+  const sqlQuery = 'SELECT id FROM task22 WHERE title = ?';
+  dbConnection.query(sqlQuery, [title], (err, result) => {
+    if (err) {
+      console.error('Ошибка выполнения запроса: ' + err.stack);
+      res.status(500).send('Ошибка сервера');
+      return;
+    }
+
+    if (result.length > 0) {
+      const taskId = result[0].id;
+      const updateQuery = 'UPDATE task22 SET folder_id = ? WHERE id = ?';
+      dbConnection.query(updateQuery, [folderId, taskId], (err, result) => {
+        if (err) {
+          console.error('Ошибка выполнения запроса: ' + err.stack);
+          res.status(500).send('Ошибка сервера');
+          return;
+        }
+        console.log('Задача перемещена:', result);
+        res.json({
+          title,
+          folderId,
+        });
+      });
+    } else {
+      const insertQuery = 'INSERT INTO task22 (title, folder_id) VALUES (?, ?)';
+      dbConnection.query(insertQuery, [title, folderId], (err, result) => {
+        if (err) {
+          console.error('Ошибка выполнения запроса: ' + err.stack);
+          res.status(500).send('Ошибка сервера');
+          return;
+        }
+        console.log('Задача добавлена:', result);
+        res.json({
+          title,
+          folderId,
+        });
+      });
+    }
+  });
+});
 
 // Запуск сервера
 app.listen(port, () => {
