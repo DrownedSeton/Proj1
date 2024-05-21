@@ -363,6 +363,14 @@ ul {
     margin-bottom: 10px;
 }
 
+.edit-form2 {
+    display: flex;
+    flex-direction: column;
+}
+
+.edit-form2 div {
+    margin-bottom: 10px;
+}
 .formtodo {
     position: relative;
 }
@@ -377,4 +385,89 @@ ul {
     border-radius: 15px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     display: none;
+}
+
+.edit-form2 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #2c2c2c;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: none;
+}
+.edit-form3 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #2c2c2c;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: none;
+}
+.edit-form3 {
+    display: flex;
+    flex-direction: column;
+}
+
+.edit-form3 div {
+    margin-bottom: 10px;
+}
+
+.todo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 0px;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0px;
+}
+
+.input-group input {
+    margin-right: 0;
+}
+
+.button-container {
+    display: flex;
+    align-items: center;
+}
+
+.button-container button {
+    margin-left: 0;
+}
+
+.input-group + .input-group {
+    margin-top: 0px;
+}
+
+.folder {
+    background-color: #2c2c2c;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: auto; 
+    height: 85px;
+}
+.folder-title {
+    font-weight: bold;
+    font-size: 20px;
+    margin: 13px;
+    text-align: center;
 }
