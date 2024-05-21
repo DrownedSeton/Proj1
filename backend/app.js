@@ -12,10 +12,9 @@ const path = require('path');
 
 app.use(express.json());
 app.use(cors());
-app.use(express.static("public"));
 app.use(express.static(__dirname + '../frontend'));
 
-
+ 
 // Конфигурация подключения к базе данных
 const dbConnection = mysql.createConnection(config.db.mysql);
 
