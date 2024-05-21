@@ -25,7 +25,7 @@ dbConnection.connect((err) => {
 });
 const path = require('path');
 app.use(express.static("public"));
-app.use(express.static(__dirname + '/frontend'));
+app.use(express.static(__dirname + '../frontend'));
 app.get("/", function(req, res) {
 console.log("Something was catched!" + req.method);
 res.sendFile(path.join(__dirname, '../frontend/index.html'));
